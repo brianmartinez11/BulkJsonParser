@@ -20,11 +20,17 @@ def main():
     json_input = getJsonDataFromFile("test.json")
     input_obj = json.loads(json_input)
 
-    #Re organize object
-    output_obj = reformat_data(input_obj)
+    obj_count = len(input_obj)
+    print(f"Re organizing {obj_count} elements")
+
+    obj_array = []
+    for obj in input_obj:
+        #Re organize object
+        output_obj = reformat_data(obj)
+        obj_array.append(output_obj)
 
     #Dump data on file
-    output_obj = json.dumps(output_obj, indent=4)
+    output_obj = json.dumps(obj_array, indent=4)
     saveJsonDataOnFile("final.json", output_obj)
 
     stop = True
