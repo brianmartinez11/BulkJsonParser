@@ -16,8 +16,11 @@ import sys
 
 
 def main():
+    input_json_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesJob/ConfirmExpand 3-28-2018 (Bulk-json).json"
+    output_json_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesJob/ConfirmExpand 3-28-2018 (DAL-json).json"
+
     #Read Json file
-    json_input = getJsonDataFromFile("test.json")
+    json_input = getJsonDataFromFile(input_json_path)
     input_obj = json.loads(json_input)
 
     obj_count = len(input_obj)
@@ -31,7 +34,7 @@ def main():
 
     #Dump data on file
     output_obj = json.dumps(obj_array, indent=4)
-    saveJsonDataOnFile("final.json", output_obj)
+    saveJsonDataOnFile(output_json_path, output_obj)
 
     stop = True
 
@@ -131,33 +134,149 @@ def reformat_data(input_obj):
     final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
     output_obj["PenEvents"] = final_param
 
-    #Records Not found on bulk data
-    output_obj["PhoneUserActivity"] = []
-    output_obj["PhoneErrorLog"] = []
-    output_obj["PhoneCrashLog"] = []
-    output_obj["TxDiagnostic"] = []
-    output_obj["ManufacturingData"] = []
-    output_obj["FirmwareParameterData"] = []
-    output_obj["PCSoftwareParameter"] = []
-    output_obj["ActivityLog"] = []
-    output_obj["ProcessorErrorBlock"] = []
-    output_obj["FirmwareHeader"] = []
-    output_obj["InsertionTime"] = []
-    output_obj["ReceiverLog"] = []
-    output_obj["SessionCommandData"] = []
-    output_obj["TransmitterInfo"] = []
-    output_obj["TransmitterPrivateData"] = []
-    output_obj["TransmitterManifest"] = []
-    output_obj["BackfilledEGVData"] = []
-    output_obj["ReceiverErrorData"] = []
-    output_obj["SensorData"] = []
-    output_obj["CalSet"] = []
-    output_obj["Aberration"] = []
-    output_obj["Communication"] = []
-    output_obj["ContentPrivate"] = []
+    # ------ Private Records ------
+
+    private_entries = input_obj[5]["PrivateRecords"]["Entries"]
+
+    #PhoneUserActivity
+    temp_param = get_private_records(private_entries, "UserActivityRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["PhoneUserActivity"] = final_param
+
+    #PhoneErrorLog
+    temp_param = get_private_records(private_entries, "ErrorLogRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["PhoneErrorLog"] = final_param
+
+    #PhoneCrashLog
+    temp_param = get_private_records(private_entries, "CrashLogRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["PhoneErrorLog"] = final_param
+
+    #TxDiagnostic
+    temp_param = get_private_records(private_entries, "TxDiagnosticRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["TxDiagnostic"] = final_param
+
+    #ManufacturingData
+    temp_param = get_private_records(private_entries, "ManufacturingDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["ManufacturingData"] = final_param
+
+    #FirmwareParameterData
+    temp_param = get_private_records(private_entries, "FirmwareParameterRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["FirmwareParameterData"] = final_param
+
+    #PCSoftwareParameter
+    temp_param = get_private_records(private_entries, "PCSoftwareParameterRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["PCSoftwareParameter"] = final_param
+
+    #ActivityLog
+    temp_param = get_private_records(private_entries, "ManufacturingDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["ActivityLogRecordActivityLogRecord"] = final_param
+
+    #ProcessorErrorBlock
+    temp_param = get_private_records(private_entries, "ReceiverProcessorErrorRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["ProcessorErrorBlock"] = final_param
+
+    #FirmwareHeader
+    temp_param = get_private_records(private_entries, "FirmwareHeaderRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["FirmwareHeader"] = final_param
+
+    #InsertionTime
+    temp_param = get_private_records(private_entries, "InsertionTimeRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["InsertionTime"] = final_param
+
+    #ReceiverLog
+    temp_param = get_private_records(private_entries, "ReceiverLogRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["ReceiverLog"] = final_param
+
+    #SessionCommandData
+    temp_param = get_private_records(private_entries, "SessionCommandDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["SessionCommandData"] = final_param
+
+    #TransmitterInfo
+    temp_param = get_private_records(private_entries, "TransmitterInfoDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["TransmitterInfo"] = final_param
+
+    #TransmitterPrivateData
+    temp_param = get_private_records(private_entries, "TransmitterPrivateDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["TransmitterPrivateData"] = final_param
+
+    #TransmitterManifest
+    temp_param = get_private_records(private_entries, "TransmitterManifestRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["TransmitterManifest"] = final_param
+
+    #BackfilledEGVData
+    temp_param = get_private_records(private_entries, "BackfilledEGVDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["BackfilledEGVData"] = final_param
+
+    #ReceiverErrorData
+    temp_param = get_private_records(private_entries, "ReceiverErrorDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["ReceiverErrorData"] = final_param
+
+    #SensorData
+    temp_param = get_private_records(private_entries, "SensorDataRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["SensorData"] = final_param
+
+    #CalSet
+    temp_param = get_private_records(private_entries, "CalSetRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["CalSet"] = final_param
+
+    #Aberration
+    temp_param = get_private_records(private_entries, "AberrationRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["Aberration"] = final_param
+
+    #Communication
+    temp_param = get_private_records(private_entries, "CommunicationRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["Communication"] = final_param
+
+    #ContentPrivate
+    temp_param = get_private_records(private_entries, "ContentPrivateRecord")
+    final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    output_obj["ContentPrivate"] = final_param
 
     return output_obj
 
+
+def get_private_records(private_entries, record_name):
+
+    was_found = False
+    record = []
+    for entrie in private_entries:
+        current_record_name = entrie["RecordType"]
+        if current_record_name == record_name:
+            record_string = entrie["Records"]
+            was_found = True
+            break
+
+    if was_found == True:
+        #Verify if the record is clean
+        record = parse_string_to_obj(record_string)
+
+    return record
+    
+def parse_string_to_obj(record_string):
+    text = record_string
+    obj = json.loads(text)
+    return obj
 
 
 
