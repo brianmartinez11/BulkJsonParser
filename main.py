@@ -9,33 +9,52 @@
 import json
 import sys
 import os
-import argparse
-import os
-import subprocess
-import sys
 
 
 def main():
-    input_json_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesJob/ConfirmExpand 3-28-2018 (Bulk-json).json"
-    output_json_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesJob/ConfirmExpand 3-28-2018 (DAL-json).json"
 
-    #Read Json file
-    json_input = getJsonDataFromFile(input_json_path)
-    input_obj = json.loads(json_input)
+    bulk_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/71BD"
+    json_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/71DAL"
+    files = ['G6Android013Confirmed 2-22-2018 2.txt', '071Confirmed398 7-9-2018.txt', 'ParsingError 2-22-2018.txt', 'G6071Confirmed 6-14-2017.txt', 'ConfirmExpand 3-28-2018.txt', '71NotConfirmed 6-28-2016.txt', '71Confirmed 4-22-2016.txt', 'G60iOS071Confirmed 2-16-2018.txt', 'G5ReceiverApp042Undetermined_10_27_2017.txt', '071Confirmed458 5-8-2018.txt', '013NotConfirmed170 3-20-2018.txt', 'NullError11-22-2018.txt', 'PL2287 20190111_902.txt']
+    
+    #Variable for folder summary
+    summary_array = []
 
-    obj_count = len(input_obj)
-    print(f"Re organizing {obj_count} elements")
+    for file_name in files:
+        json_data_file = os.path.splitext(file_name)[0] + "(DAL-Format).json"
 
-    obj_array = []
-    for obj in input_obj:
-        #Re organize object
-        output_obj = reformat_data(obj)
-        obj_array.append(output_obj)
+        input_json_path = os.path.join(bulk_data_folder_path,file_name)
+        output_json_path = os.path.join(json_data_folder_path,json_data_file)
 
-    #Dump data on file
-    output_obj = json.dumps(obj_array, indent=4)
-    saveJsonDataOnFile(output_json_path, output_obj)
+        #Read Json file
+        json_input = getJsonDataFromFile(input_json_path)
+        input_obj = json.loads(json_input)
 
+        obj_count = len(input_obj)
+        print(f"Re organizing {obj_count} elements")
+
+        obj_array = []
+        
+        for obj in input_obj:
+            #Re organize object
+            output_obj = reformat_data(obj)
+            obj_array.append(output_obj)
+
+            #Create summary of patient
+            summary_obj = create_summary(output_obj, file_name)
+            summary_array.append(summary_obj)
+
+        #Dump data on file
+        output_obj = json.dumps(obj_array, indent=4)
+        saveJsonDataOnFile(output_json_path, output_obj)
+
+    #Save summary on file
+    summ_obj = json.dumps(summary_array, indent=4)
+    summary_file_path = os.path.join(json_data_folder_path,"summary.json")
+    saveJsonDataOnFile(summary_file_path, summ_obj)
+
+
+        
     stop = True
 
 
@@ -62,7 +81,7 @@ def appendSourceStream(obj_array, header, value):
 
 def reformat_data(input_obj):
     #Get basic info
-    request_id = input_obj[1]["PostId"]#Pass this as Request ID
+    request_id = input_obj[0]["PostHeader"]["PatientId"]
     source_stream = input_obj[0]["PostHeader"]["SourceStream"]
 
     #Setup Final Object
@@ -277,6 +296,21 @@ def parse_string_to_obj(record_string):
     text = record_string
     obj = json.loads(text)
     return obj
+
+def create_summary(patient_obj, file_name):
+    #Read Current Patient Info
+    summary_obj = {}
+    summary_obj["PatientId"] = patient_obj["RequestId"]
+    summary_obj["FileName"] = file_name
+
+    valid_keys = []
+    for key, info in patient_obj.items():
+        if info != []:
+            valid_keys.append(key)
+
+    summary_obj["AvaliableRecords"] = valid_keys
+
+    return summary_obj
 
 
 
