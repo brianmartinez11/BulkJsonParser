@@ -13,10 +13,11 @@ import os
 
 def main():
 
-    bulk_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/71BD"
-    json_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/71DAL"
-    files = ['G6Android013Confirmed 2-22-2018 2.txt', '071Confirmed398 7-9-2018.txt', 'ParsingError 2-22-2018.txt', 'G6071Confirmed 6-14-2017.txt', 'ConfirmExpand 3-28-2018.txt', '71NotConfirmed 6-28-2016.txt', '71Confirmed 4-22-2016.txt', 'G60iOS071Confirmed 2-16-2018.txt', 'G5ReceiverApp042Undetermined_10_27_2017.txt', '071Confirmed458 5-8-2018.txt', '013NotConfirmed170 3-20-2018.txt', 'NullError11-22-2018.txt', 'PL2287 20190111_902.txt']
-    
+    bulk_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/NewParsed/013 sync txt files(Parsed)/013 sync txt files BulkData"
+    json_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/NewParsed/013 sync txt files(Parsed)/013 sync txt files DAL"
+    files = ['042HKH2PXM6H-12-29-2019bulk_data.txt', '138LHERZIIV-11-15-2020bulk_data.txt', '13Y4P59HP9L-04-24-2020bulk_data.txt', '13ZENM7QEXK-12-24-2019bulk_data.txt', '0130ZUN3X3WZ-06-27-2020bulk_data.txt', '13PZJGT4975-01-14-2020bulk_data.txt', '042A1MNUUBFB-05-24-2020bulk_data.txt', '13Y4P59HP9L-04-27-2020bulk_data.txt', '133S75PLAQ3-03-29-2020bulk_data.txt', '13YQN6235EG-04-25-2020bulk_data.txt', '013FKHJL3AEP-01-02-2020bulk_data.txt', '13UXSSHIZIK-01-31-2020bulk_data.txt', '042JY0SMY3QA-02-27-2020bulk_data.txt', '019404-06-10-2017bulk_data.txt', '13TCOU6SSWV-01-01-2020bulk_data.txt', '13CR26Y514H-06-02-2020bulk_data.txt', '13E30418GP0-01-01-2020bulk_data.txt', '0427LZ7K9BUJ-01-28-2020bulk_data.txt', '13YQN6235EG-04-27-2020bulk_data.txt', '13GT6CW8RPO-05-31-2020bulk_data.txt', '13GT6CW8RPO-05-28-2020bulk_data.txt', '13SA3RMARHJ-05-24-2020bulk_data.txt', '0138YIMD6H2V-01-01-2020bulk_data.txt', '134V3DZRPWG-12-29-2019bulk_data.txt', '13XJ1IYLO24-02-05-2020bulk_data.txt']
+
+
     #Variable for folder summary
     summary_array = []
 
@@ -44,14 +45,14 @@ def main():
             summary_obj = create_summary(output_obj, file_name)
             summary_array.append(summary_obj)
 
-        #Dump data on file
-        output_obj = json.dumps(obj_array, indent=4)
-        saveJsonDataOnFile(output_json_path, output_obj)
+        #Merge array into a single object
+        final_obj = merge_patient_data(obj_array)
 
-    #Save summary on file
-    summ_obj = json.dumps(summary_array, indent=4)
-    summary_file_path = os.path.join(json_data_folder_path,"summary.json")
-    saveJsonDataOnFile(summary_file_path, summ_obj)
+        #Dump data on file
+        if final_obj == None:
+            final_obj = {}
+        output_obj = json.dumps(final_obj, indent=4)
+        saveJsonDataOnFile(output_json_path, output_obj)
 
 
         
@@ -96,7 +97,7 @@ def reformat_data(input_obj):
     #MeterRecord
     temp_param = input_obj[3]["PublicRecords"][1]["MeterRecords"]
     final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
-    output_obj["MeterRecord"] = final_param
+    output_obj["Meter"] = final_param
 
     #Sensor
     temp_param = input_obj[3]["PublicRecords"][2]["SensorRecords"]
@@ -195,7 +196,7 @@ def reformat_data(input_obj):
     #ActivityLog
     temp_param = get_private_records(private_entries, "ManufacturingDataRecord")
     final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
-    output_obj["ActivityLogRecordActivityLogRecord"] = final_param
+    output_obj["ActivityLog"] = final_param
 
     #ProcessorErrorBlock
     temp_param = get_private_records(private_entries, "ReceiverProcessorErrorRecord")
@@ -296,6 +297,34 @@ def parse_string_to_obj(record_string):
     text = record_string
     obj = json.loads(text)
     return obj
+
+def merge_patient_data(data_array):
+
+    if data_array == []:
+        return
+
+    patient_obj = {}
+    patient_id = data_array[0]["RequestId"]
+
+    print(f"Merging data for patient {patient_id}")
+    patient_obj ["RequestId"] = data_array[0]["RequestId"]
+
+    starter = True
+    for patient in data_array:
+        for key, values in patient.items():
+            if key != "RequestId":
+                if starter == True:
+                    patient_obj[key] = values
+                else:
+                    patient_obj[key] += values
+        starter = False
+
+    return patient_obj
+
+
+
+
+
 
 def create_summary(patient_obj, file_name):
     #Read Current Patient Info
