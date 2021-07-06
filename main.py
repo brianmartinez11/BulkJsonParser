@@ -12,17 +12,20 @@ import os
 
 
 def main():
-
-    bulk_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/NewParsed/013 sync txt files(Parsed)/013 sync txt files BulkData"
-    json_data_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/NewParsed/013 sync txt files(Parsed)/013 sync txt files DAL"
-    files = ['042HKH2PXM6H-12-29-2019bulk_data.txt', '138LHERZIIV-11-15-2020bulk_data.txt', '13Y4P59HP9L-04-24-2020bulk_data.txt', '13ZENM7QEXK-12-24-2019bulk_data.txt', '0130ZUN3X3WZ-06-27-2020bulk_data.txt', '13PZJGT4975-01-14-2020bulk_data.txt', '042A1MNUUBFB-05-24-2020bulk_data.txt', '13Y4P59HP9L-04-27-2020bulk_data.txt', '133S75PLAQ3-03-29-2020bulk_data.txt', '13YQN6235EG-04-25-2020bulk_data.txt', '013FKHJL3AEP-01-02-2020bulk_data.txt', '13UXSSHIZIK-01-31-2020bulk_data.txt', '042JY0SMY3QA-02-27-2020bulk_data.txt', '019404-06-10-2017bulk_data.txt', '13TCOU6SSWV-01-01-2020bulk_data.txt', '13CR26Y514H-06-02-2020bulk_data.txt', '13E30418GP0-01-01-2020bulk_data.txt', '0427LZ7K9BUJ-01-28-2020bulk_data.txt', '13YQN6235EG-04-27-2020bulk_data.txt', '13GT6CW8RPO-05-31-2020bulk_data.txt', '13GT6CW8RPO-05-28-2020bulk_data.txt', '13SA3RMARHJ-05-24-2020bulk_data.txt', '0138YIMD6H2V-01-01-2020bulk_data.txt', '134V3DZRPWG-12-29-2019bulk_data.txt', '13XJ1IYLO24-02-05-2020bulk_data.txt']
-
+    base_folder_path = "/Users/bm1120/Documents/Projects/UDP/ParsedFilesFolders/090(Parsed)"
+    bulk_data_folder_path = os.path.join(base_folder_path ,"BulkData")
+    json_data_folder_path = os.path.join(base_folder_path,"DAL")
+    #files = ['042HKH2PXM6H-12-29-2019bulk_data.txt', '138LHERZIIV-11-15-2020bulk_data.txt', '13Y4P59HP9L-04-24-2020bulk_data.txt', '13ZENM7QEXK-12-24-2019bulk_data.txt', '0130ZUN3X3WZ-06-27-2020bulk_data.txt', '13PZJGT4975-01-14-2020bulk_data.txt', '042A1MNUUBFB-05-24-2020bulk_data.txt', '13Y4P59HP9L-04-27-2020bulk_data.txt', '133S75PLAQ3-03-29-2020bulk_data.txt', '13YQN6235EG-04-25-2020bulk_data.txt', '013FKHJL3AEP-01-02-2020bulk_data.txt', '13UXSSHIZIK-01-31-2020bulk_data.txt', '042JY0SMY3QA-02-27-2020bulk_data.txt', '019404-06-10-2017bulk_data.txt', '13TCOU6SSWV-01-01-2020bulk_data.txt', '13CR26Y514H-06-02-2020bulk_data.txt', '13E30418GP0-01-01-2020bulk_data.txt', '0427LZ7K9BUJ-01-28-2020bulk_data.txt', '13YQN6235EG-04-27-2020bulk_data.txt', '13GT6CW8RPO-05-31-2020bulk_data.txt', '13GT6CW8RPO-05-28-2020bulk_data.txt', '13SA3RMARHJ-05-24-2020bulk_data.txt', '0138YIMD6H2V-01-01-2020bulk_data.txt', '134V3DZRPWG-12-29-2019bulk_data.txt', '13XJ1IYLO24-02-05-2020bulk_data.txt']
+    files = get_file_name(bulk_data_folder_path)
+    if ".DS_Store" in files:
+        files.remove(".DS_Store")
+    os.mkdir(json_data_folder_path)
 
     #Variable for folder summary
     summary_array = []
 
     for file_name in files:
-        json_data_file = os.path.splitext(file_name)[0] + "(DAL-Format).json"
+        json_data_file = os.path.splitext(file_name)[0] + "(DAL-Format).txt"
 
         input_json_path = os.path.join(bulk_data_folder_path,file_name)
         output_json_path = os.path.join(json_data_folder_path,json_data_file)
@@ -137,6 +140,7 @@ def reformat_data(input_obj):
     #Inventory
     temp_param = input_obj[3]["PublicRecords"][9]["InventoryRecords"]
     final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
+    final_param = clean_accesories_object(final_param)
     output_obj["Inventory"] = final_param
 
     #NotificationSetting
@@ -298,6 +302,13 @@ def parse_string_to_obj(record_string):
     obj = json.loads(text)
     return obj
 
+def clean_accesories_object(obj_array):
+    for obj in obj_array:
+        old_value = obj["Accessories"]
+        obj["Accessories"] = parse_string_to_obj(old_value)
+
+    return obj_array
+
 def merge_patient_data(data_array):
 
     if data_array == []:
@@ -321,6 +332,9 @@ def merge_patient_data(data_array):
 
     return patient_obj
 
+def get_file_name(folder_path):
+     file_names = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+     return file_names
 
 
 
