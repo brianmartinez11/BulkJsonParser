@@ -140,7 +140,7 @@ def reformat_data(input_obj):
     #Inventory
     temp_param = input_obj[3]["PublicRecords"][9]["InventoryRecords"]
     final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
-    final_param = clean_accesories_object(final_param)
+    #final_param = clean_accesories_object(final_param)
     output_obj["Inventory"] = final_param
 
     #NotificationSetting
@@ -198,7 +198,7 @@ def reformat_data(input_obj):
     output_obj["PCSoftwareParameter"] = final_param
 
     #ActivityLog
-    temp_param = get_private_records(private_entries, "ManufacturingDataRecord")
+    temp_param = get_private_records(private_entries, "ActivityLogRecord")
     final_param = appendSourceStream(temp_param,"SourceStream", source_stream)
     output_obj["ActivityLog"] = final_param
 
